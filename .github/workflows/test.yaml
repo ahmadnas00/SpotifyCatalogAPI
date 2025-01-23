@@ -46,7 +46,7 @@ jobs:
     needs: BuildAndTest
     env:
       SPOTIFY_TESTING_REPO_NAME: ahmadnas00/SpotifyTesting
-      UI_TESTING_WORKFLOW_ID: ui_testing.yaml
+      UI_TESTING_WORKFLOW_ID: SeleniumTests.yaml
     steps:
       - name: Trigger Selenium Testing Workflow
         run: |
