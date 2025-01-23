@@ -96,16 +96,11 @@ public class CatalogController {
 
     @PostMapping("/artists")
     public ResponseEntity<String> addArtist(@RequestBody Artist artist) throws IOException {
-
         ClassPathResource resource = new ClassPathResource("data/popular_artists.json");
         ArrayNode allArtists = (ArrayNode) objectMapper.readTree(resource.getFile());
-
         JsonNode artistNode = objectMapper.valueToTree(artist);
-
         allArtists.add(artistNode);
-
         objectMapper.writerWithDefaultPrettyPrinter().writeValue(resource.getFile(), allArtists);
-
         return new ResponseEntity<>("Artist added successfully.", HttpStatus.CREATED);
     }
 
