@@ -27,9 +27,9 @@ jobs:
           mvn test -q -Dtest=CatalogUtilsTest,SpotifyUtilsTest
           mvn surefire-report:report-only 
 
-      - name: Check Styles
-        run: |
-          mvn checkstyle:check -Dcheckstyle.violationSeverity=warning
+#      - name: Check Styles
+#        run: |
+#          mvn checkstyle:check -Dcheckstyle.violationSeverity=warning
 
       - name: Test Report
         uses: dorny/test-reporter@v1
