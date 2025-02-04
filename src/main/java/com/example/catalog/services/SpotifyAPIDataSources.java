@@ -24,6 +24,9 @@ public class SpotifyAPIDataSources implements DataSourceService {
     @Value("${SpotifyAPIDataSources.token}")
     private String accessToken = "BQAgB9iUzuPZ1lgvD94jXaMfBNWrz_2HKv_X_UgpCv7FM1D_szJBIt7OhX4ZzJd4eIopAInIm_X5reI8KdVSAKZOeEmQIvxe2XSAQsWCjkq2HfOCztgLr3gG7YlYFkty8L35jFjFQ6o";
 
+    // Here in the above line , i could use my method to generate a token , but the code will still not run !
+
+
     private HttpHeaders getAuthHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
@@ -90,7 +93,6 @@ public class SpotifyAPIDataSources implements DataSourceService {
 
     @Override
     public ResponseEntity<List<Artist>> getAllArtists() {
-        // Spotify API does NOT provide an endpoint for all artists, so returning 501 Not Implemented
         return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
     }
 
