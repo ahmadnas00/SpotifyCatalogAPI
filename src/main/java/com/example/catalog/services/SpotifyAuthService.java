@@ -17,9 +17,6 @@ public class SpotifyAuthService {
     @Value("${spotify.client.secret}")
     private static String clientSecret;
 
-    @Value("${spotify.api.url}")
-    private String spotifyApiUrl;
-
     private static final RestTemplate restTemplate = new RestTemplate();
 
     public static String getAccessToken() {

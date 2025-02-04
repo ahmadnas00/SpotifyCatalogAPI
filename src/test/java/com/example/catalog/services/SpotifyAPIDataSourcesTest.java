@@ -83,55 +83,58 @@ public class SpotifyAPIDataSourcesTest {
     }
 
     @Test
-    void testGetAllAlbums() throws IOException {
-        String url = "https://api.spotify.com/v1/albums/" ;
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer "+accessToken);
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        List<Album> albums = new ArrayList<>();
-        albums.add(newAlbum);
-        Mockito.when(restTemplate.exchange(url,HttpMethod.GET,entity,new ParameterizedTypeReference<List<Album>>() {})).thenReturn(new ResponseEntity<>(albums,HttpStatus.OK));
-        List<Album> res = spotifyAPIDataSources.getAllAlbums().getBody();
-        assertNotNull(res);
-        assertEquals(1,res.size());
-        assertEquals("New Test Album",res.get(0).getName());
-        assertEquals("new_test_album",res.get(0).getId());
-    }
-
-    @Test
-    void testGetAlbumById() throws Exception {
-        String albumId = "Ahmad_new_test_album";
+    void testGetAlbumById() {
+        String albumId = "new_test_album";
         String url = "https://api.spotify.com/v1/albums/" + albumId;
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer "+accessToken);
+        headers.set("Authorization", "Bearer " + "mockAccessToken");
         HttpEntity<String> entity = new HttpEntity<>(headers);
-        Mockito.when(restTemplate.exchange(url,HttpMethod.GET,  entity,Album.class)).thenReturn(new ResponseEntity(newAlbum,HttpStatus.OK));
-        Album album = spotifyAPIDataSources.getAlbumById(albumId).getBody();
-        assertNotNull(album);
-        assertEquals(albumId, album.getId());
-        assertEquals("New Test Album", album.getName());
+        Album newAlbum = new Album();
+        newAlbum.setId(albumId);
+        newAlbum.setName("New Test Album");
+        Mockito.when(restTemplate.exchange(
+                ArgumentMatchers.eq(url),
+                ArgumentMatchers.eq(HttpMethod.GET),
+                ArgumentMatchers.any(HttpEntity.class),
+                ArgumentMatchers.eq(Album.class)
+        )).thenReturn(new ResponseEntity<>(newAlbum, HttpStatus.OK));
+        ResponseEntity<Album> responseEntity = spotifyAPIDataSources.getAlbumById(albumId);
+        Album album = responseEntity.getBody();
+        assertNotNull(album, "Album should not be null");
+        assertEquals(albumId, album.getId(), "Album ID should match");
+        assertEquals("New Test Album", album.getName(), "Album name should match");
     }
 
     @Test
     public void testGetAlbumTracks() throws IOException {
-        String albumId = "Ahmad_new_test_album";
-        String url = "https://api.spotify.com/v1/"+"albums/" + albumId + "/tracks";
+        String albumId = "new_test_album";
+        String url = "https://api.spotify.com/v1/albums/" + albumId + "/tracks";
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer "+accessToken);
+        headers.set("Authorization", "Bearer " + accessToken);
         HttpEntity<String> entity = new HttpEntity<>(headers);
-        List<Track> tracks = new ArrayList<>();
-        tracks.add(track1);
-        tracks.add(track2);
-        Mockito.when(restTemplate.exchange(url,HttpMethod.GET,  entity,new ParameterizedTypeReference<List<Track>>() {})).thenReturn(new ResponseEntity(tracks,HttpStatus.OK));
-        List<Track> res = spotifyAPIDataSources.getAlbumTracks(albumId).getBody();
-        assertNotNull(res);
-        assertEquals(2,res.size());
-        assertEquals("track1",res.get(0).getId());
-        assertEquals("track2",res.get(1).getId());
+        Track track1 = new Track();
+        track1.setId("track1");
+        track1.setName("Track One");
+        Track track2 = new Track();
+        track2.setId("track2");
+        track2.setName("Track Two");
+        List<Track> tracks = Arrays.asList(track1, track2);
+        Mockito.when(restTemplate.exchange(
+                ArgumentMatchers.eq(url),
+                ArgumentMatchers.eq(HttpMethod.GET),
+                ArgumentMatchers.any(HttpEntity.class),
+                ArgumentMatchers.eq(Track[].class)
+        )).thenReturn(new ResponseEntity<>(tracks.toArray(new Track[0]), HttpStatus.OK));
+        ResponseEntity<List<Track>> responseEntity = spotifyAPIDataSources.getAlbumTracks(albumId);
+        List<Track> res = responseEntity.getBody();  // Extract the list from ResponseEntity
+        assertNotNull(res, "Response body should not be null");
+        assertEquals(2, res.size(), "The number of tracks should match");
+        assertEquals("track1", res.get(0).getId(), "Track ID should match");
+        assertEquals("track2", res.get(1).getId(), "Track ID should match");
     }
 
     @Test
-    void testGetArtists() throws IOException {
+    void testGetAllArtists() throws IOException {
         String url = "https://api.spotify.com/v1/artists";
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
@@ -143,41 +146,51 @@ public class SpotifyAPIDataSourcesTest {
         artist2.setId("artist2");
         artist2.setName("Artist Two");
         List<Artist> artists = Arrays.asList(artist1, artist2);
-        Mockito.when(restTemplate.exchange(url, HttpMethod.GET, entity, new ParameterizedTypeReference<List<Artist>>() {}))
-                .thenReturn(new ResponseEntity<>(artists, HttpStatus.OK));
-        List<Artist> res = spotifyAPIDataSources.getAllArtists().getBody();
-        assertNotNull(res);
-        assertEquals(2, res.size());
-        assertEquals("Artist One", res.get(0).getName());
-        assertEquals("artist1", res.get(0).getId());
-        assertEquals("Artist Two", res.get(1).getName());
-        assertEquals("artist2", res.get(1).getId());
+        Mockito.when(restTemplate.exchange(
+                ArgumentMatchers.eq(url),
+                ArgumentMatchers.eq(HttpMethod.GET),
+                ArgumentMatchers.any(HttpEntity.class),
+                ArgumentMatchers.eq(Artist[].class)
+        )).thenReturn(new ResponseEntity<>(artists.toArray(new Artist[0]), HttpStatus.OK));
+        ResponseEntity<List<Artist>> responseEntity = spotifyAPIDataSources.getAllArtists();
+        List<Artist> res = responseEntity.getBody();  // Extract the list from ResponseEntity
+        assertNotNull(res, "Response body should not be null");
+        assertEquals(2, res.size(), "The number of artists should match");
+        assertEquals("Artist One", res.get(0).getName(), "Artist name should match");
+        assertEquals("artist1", res.get(0).getId(), "Artist ID should match");
+        assertEquals("Artist Two", res.get(1).getName(), "Artist name should match");
+        assertEquals("artist2", res.get(1).getId(), "Artist ID should match");
     }
 
     @Test
-    void testGetArtistById() throws IOException {
+    void testGetArtistById() {
         String artistId = "artist1";
         String url = "https://api.spotify.com/v1/artists/" + artistId;
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + accessToken);
+        headers.set("Authorization", "Bearer " + "mockAccessToken");
         HttpEntity<String> entity = new HttpEntity<>(headers);
         Artist artist = new Artist();
-        artist.setId("artist1");
+        artist.setId(artistId);
         artist.setName("Artist One");
-        Mockito.when(restTemplate.exchange(url, HttpMethod.GET, entity, Artist.class))
-                .thenReturn(new ResponseEntity<>(artist, HttpStatus.OK));
-        Artist res = spotifyAPIDataSources.getArtistById(artistId).getBody();
-        assertNotNull(res);
-        assertEquals(artistId, res.getId());
-        assertEquals("Artist One", res.getName());
+        Mockito.when(restTemplate.exchange(
+                ArgumentMatchers.eq(url),
+                ArgumentMatchers.eq(HttpMethod.GET),
+                ArgumentMatchers.any(HttpEntity.class),
+                ArgumentMatchers.eq(Artist.class)
+        )).thenReturn(new ResponseEntity<>(artist, HttpStatus.OK));
+        ResponseEntity<Artist> responseEntity = spotifyAPIDataSources.getArtistById(artistId);
+        Artist res = responseEntity.getBody();
+        assertNotNull(res, "Artist should not be null");
+        assertEquals(artistId, res.getId(), "Artist ID should match");
+        assertEquals("Artist One", res.getName(), "Artist name should match");
     }
 
     @Test
-    void testGetArtistAlbums() throws IOException {
+    void testGetArtistAlbums() {
         String artistId = "artist1";
         String url = "https://api.spotify.com/v1/artists/" + artistId + "/albums";
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + accessToken);
+        headers.set("Authorization", "Bearer mockAccessToken");
         HttpEntity<String> entity = new HttpEntity<>(headers);
         Album album1 = new Album();
         album1.setId("album1");
@@ -185,66 +198,79 @@ public class SpotifyAPIDataSourcesTest {
         Album album2 = new Album();
         album2.setId("album2");
         album2.setName("Artist One Album 2");
-        List<Album> albums = Arrays.asList(album1, album2);
-        Mockito.when(restTemplate.exchange(url, HttpMethod.GET, entity, new ParameterizedTypeReference<List<Album>>() {}))
-                .thenReturn(new ResponseEntity<>(albums, HttpStatus.OK));
-        List<Album> res = spotifyAPIDataSources.getArtistAlbums(artistId).getBody();
-        assertNotNull(res);
-        assertEquals(2, res.size());
-        assertEquals("Artist One Album", res.get(0).getName());
-        assertEquals("album1", res.get(0).getId());
-        assertEquals("Artist One Album 2", res.get(1).getName());
-        assertEquals("album2", res.get(1).getId());
+        Album[] albumsArray = new Album[]{album1, album2};
+        Mockito.when(restTemplate.exchange(
+                ArgumentMatchers.eq(url),
+                ArgumentMatchers.eq(HttpMethod.GET),
+                ArgumentMatchers.any(HttpEntity.class),
+                ArgumentMatchers.eq(Album[].class)
+        )).thenReturn(new ResponseEntity<>(albumsArray, HttpStatus.OK));
+        ResponseEntity<List<Album>> responseEntity = spotifyAPIDataSources.getArtistAlbums(artistId);
+        List<Album> res = responseEntity.getBody();  // Extract the List<Album>
+        assertNotNull(res, "Response body should not be null");
+        assertEquals(2, res.size(), "There should be exactly 2 albums");
+        assertEquals("Artist One Album", res.get(0).getName(), "First album name should match");
+        assertEquals("album1", res.get(0).getId(), "First album ID should match");
+        assertEquals("Artist One Album 2", res.get(1).getName(), "Second album name should match");
+        assertEquals("album2", res.get(1).getId(), "Second album ID should match");
     }
 
     @Test
-    void testGetArtistSongs() throws IOException {
+    void testGetArtistSongs() {
         String artistId = "artist1";
-        String url = "https://api.spotify.com/v1/artists/" + artistId + "/tracks";  // Assuming endpoint structure
-
+        String url = "https://api.spotify.com/v1/artists/" + artistId + "/top-tracks?market=US";
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + accessToken);
+        headers.set("Authorization", "Bearer mockAccessToken");
         HttpEntity<String> entity = new HttpEntity<>(headers);
         Song song1 = new Song();
         song1.setId("song1");
-        song1.setName("First Song");
+        song1.setName("Song One");
         Song song2 = new Song();
         song2.setId("song2");
-        song2.setName("Second Song");
-        List<Song> songs = Arrays.asList(song1, song2);
-        Mockito.when(restTemplate.exchange(url, HttpMethod.GET, entity, new ParameterizedTypeReference<List<Song>>() {}))
-                .thenReturn(new ResponseEntity<>(songs, HttpStatus.OK));
-        List<Song> res = spotifyAPIDataSources.getArtistSongs(artistId).getBody();
-        assertNotNull(res);
-        assertEquals(2, res.size());
-        assertEquals("First Song", res.get(0).getName());
-        assertEquals("song1", res.get(0).getId());
-        assertEquals("Second Song", res.get(1).getName());
-        assertEquals("song2", res.get(1).getId());
+        song2.setName("Song Two");
+        Song[] songsArray = new Song[]{song1, song2};
+        Mockito.when(restTemplate.exchange(
+                ArgumentMatchers.eq(url),
+                ArgumentMatchers.eq(HttpMethod.GET),
+                ArgumentMatchers.any(HttpEntity.class),
+                ArgumentMatchers.eq(Song[].class)
+        )).thenReturn(new ResponseEntity<>(songsArray, HttpStatus.OK));
+        ResponseEntity<List<Song>> responseEntity = spotifyAPIDataSources.getArtistSongs(artistId);
+        List<Song> res = responseEntity.getBody();  // Extract the List<Song>
+        assertNotNull(res, "Response body should not be null");
+        assertEquals(2, res.size(), "There should be exactly 2 songs");
+        assertEquals("Song One", res.get(0).getName(), "First song name should match");
+        assertEquals("song1", res.get(0).getId(), "First song ID should match");
+        assertEquals("Song Two", res.get(1).getName(), "Second song name should match");
+        assertEquals("song2", res.get(1).getId(), "Second song ID should match");
     }
 
     @Test
-    void testGetAllSongs() throws IOException {
+    void testGetAllSongs() {
         String url = "https://api.spotify.com/v1/tracks";
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", "Bearer " + accessToken);
+        headers.set("Authorization", "Bearer mockAccessToken");
         HttpEntity<String> entity = new HttpEntity<>(headers);
         Song song1 = new Song();
         song1.setId("song1");
-        song1.setName("First Song");
+        song1.setName("Song One");
         Song song2 = new Song();
         song2.setId("song2");
-        song2.setName("Second Song");
+        song2.setName("Song Two");
         List<Song> songs = Arrays.asList(song1, song2);
-        Mockito.when(restTemplate.exchange(url, HttpMethod.GET, entity, new ParameterizedTypeReference<List<Song>>() {}))
-                .thenReturn(new ResponseEntity<>(songs, HttpStatus.OK));
-        List<Song> res = spotifyAPIDataSources.getAllSongs().getBody();
-        assertNotNull(res);
-        assertEquals(2, res.size());
-        assertEquals("First Song", res.get(0).getName());
-        assertEquals("song1", res.get(0).getId());
-        assertEquals("Second Song", res.get(1).getName());
-        assertEquals("song2", res.get(1).getId());
+        Mockito.when(restTemplate.exchange(
+                ArgumentMatchers.eq(url),
+                ArgumentMatchers.eq(HttpMethod.GET),
+                ArgumentMatchers.any(HttpEntity.class),
+                ArgumentMatchers.<ParameterizedTypeReference<List<Song>>>any()
+        )).thenReturn(new ResponseEntity<>(songs, HttpStatus.OK));
+        ResponseEntity<List<Song>> responseEntity = spotifyAPIDataSources.getAllSongs();
+        List<Song> res = responseEntity.getBody();  // Extract the List<Song>
+        assertNotNull(res, "Response body should not be null");
+        assertEquals(2, res.size(), "There should be exactly 2 songs");
+        assertEquals("Song One", res.get(0).getName(), "First song name should match");
+        assertEquals("song1", res.get(0).getId(), "First song ID should match");
+        assertEquals("Song Two", res.get(1).getName(), "Second song name should match");
+        assertEquals("song2", res.get(1).getId(), "Second song ID should match");
     }
-
 }

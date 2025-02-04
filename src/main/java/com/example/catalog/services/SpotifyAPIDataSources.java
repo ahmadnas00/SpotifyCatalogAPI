@@ -6,6 +6,7 @@ import com.example.catalog.model.Song;
 import com.example.catalog.model.Track;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -17,16 +18,15 @@ import java.util.List;
 @Service
 public class SpotifyAPIDataSources implements DataSourceService {
 
-
     private static final String BASE_URL = "https://api.spotify.com/v1/";
     private RestTemplate restTemplate = new RestTemplate();
 
     @Value("${SpotifyAPIDataSources.token}")
-    private String accessToken = "BQAgB9iUzuPZ1lgvD94jXaMfBNWrz_2HKv_X_UgpCv7FM1D_szJBIt7OhX4ZzJd4eIopAInIm_X5reI8KdVSAKZOeEmQIvxe2XSAQsWCjkq2HfOCztgLr3gG7YlYFkty8L35jFjFQ6o";
+    private String accessToken;
 
-    // Here in the above line , i could use my method to generate a token , but the code will still not run !
-
-
+    public void setAccessToken(String token){
+        this.accessToken = token;
+    }
     private HttpHeaders getAuthHeaders() {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + accessToken);
@@ -93,8 +93,21 @@ public class SpotifyAPIDataSources implements DataSourceService {
 
     @Override
     public ResponseEntity<List<Artist>> getAllArtists() {
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+        String url = BASE_URL + "artists";
+        HttpEntity<String> entity = new HttpEntity<>(getAuthHeaders());
+        try {
+            ResponseEntity<Artist[]> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    entity,
+                    Artist[].class
+            );
+            return ResponseEntity.ok(Arrays.asList(response.getBody()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
+
 
     @Override
     public ResponseEntity<List<Album>> getArtistAlbums(String artistId) {
@@ -124,9 +137,22 @@ public class SpotifyAPIDataSources implements DataSourceService {
 
     @Override
     public ResponseEntity<List<Song>> getAllSongs() {
-        // Spotify API does NOT provide an endpoint for all songs, so returning 501 Not Implemented
-        return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
+        String url = BASE_URL + "tracks";
+        HttpEntity<String> entity = new HttpEntity<>(getAuthHeaders());
+
+        try {
+            ResponseEntity<List<Song>> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.GET,
+                    entity,
+                    new ParameterizedTypeReference<List<Song>>() {}
+            );
+            return ResponseEntity.ok(response.getBody());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
+
 
     @Override
     public ResponseEntity<Song> getSongById(String songId) {
