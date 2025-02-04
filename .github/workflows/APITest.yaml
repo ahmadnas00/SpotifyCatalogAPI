@@ -1,14 +1,14 @@
-name: SpotifyCatalogAPI tests
+name: DataSourceService Testing
 
 on:
   push:
     branches:
       - main
-      - add-checkstyle-to-ci
+      - codeRefactor
 
 jobs:
   Test:
-    name: Execute Unittests
+    name: Execute API Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -22,5 +22,5 @@ jobs:
 
       - name: Run Tests
         run: |
-          mvn test -Dtest=**services/JSONDataSourcesServiceTest
-          mvn test -Dtest=**services/SpotifyAPIDataSourcesTest
+          mvn test -Dtest=**/services/JSONDataSourceServiceTest
+          mvn test -Dtest=**/services/SpotifyAPIDataSourcesTest

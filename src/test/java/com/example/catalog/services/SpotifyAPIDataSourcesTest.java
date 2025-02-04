@@ -83,7 +83,7 @@ public class SpotifyAPIDataSourcesTest {
     }
 
     @Test
-    void testGetAlbumById() {
+    void testGetAlbumById() throws IOException {
         String albumId = "new_test_album";
         String url = "https://api.spotify.com/v1/albums/" + albumId;
         HttpHeaders headers = new HttpHeaders();
@@ -163,7 +163,7 @@ public class SpotifyAPIDataSourcesTest {
     }
 
     @Test
-    void testGetArtistById() {
+    void testGetArtistById() throws IOException {
         String artistId = "artist1";
         String url = "https://api.spotify.com/v1/artists/" + artistId;
         HttpHeaders headers = new HttpHeaders();
@@ -186,7 +186,7 @@ public class SpotifyAPIDataSourcesTest {
     }
 
     @Test
-    void testGetArtistAlbums() {
+    void testGetArtistAlbums() throws IOException {
         String artistId = "artist1";
         String url = "https://api.spotify.com/v1/artists/" + artistId + "/albums";
         HttpHeaders headers = new HttpHeaders();
@@ -216,7 +216,7 @@ public class SpotifyAPIDataSourcesTest {
     }
 
     @Test
-    void testGetArtistSongs() {
+    void testGetArtistSongs() throws IOException {
         String artistId = "artist1";
         String url = "https://api.spotify.com/v1/artists/" + artistId + "/top-tracks?market=US";
         HttpHeaders headers = new HttpHeaders();
@@ -246,7 +246,7 @@ public class SpotifyAPIDataSourcesTest {
     }
 
     @Test
-    void testGetAllSongs() {
+    void testGetAllSongs() throws IOException {
         String url = "https://api.spotify.com/v1/tracks";
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer mockAccessToken");
