@@ -1,0 +1,26 @@
+name: Test JMeter Action
+
+on:
+  push:
+    branches:
+      - jmeter-ahmad
+
+jobs:
+  action_build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Run JMeter Action on Catalog API Test
+        uses: rbhadti94/apache-jmeter-action@v0.5.0
+        with:
+          testFilePath: CatalogAPItest.jmx
+          outputReportsFolder: reports/
+          args: "--loglevel INFO"
+
+      - name: Upload JMeter Test Results
+        uses: actions/upload-artifact@v5
+        with:
+          name: jmeter-test-results
+          path: reports/
