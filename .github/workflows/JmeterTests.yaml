@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
       - name: Run JMeter Action on Catalog API Test
         uses: rbhadti94/apache-jmeter-action@v0.5.0
@@ -20,7 +20,7 @@ jobs:
           args: "--loglevel INFO"
 
       - name: Upload JMeter Test Results
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v3
         with:
           name: jmeter-test-results
           path: reports/
